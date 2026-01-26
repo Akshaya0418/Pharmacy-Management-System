@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expired Medicines</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f4f6f8;
+        }
+
+        h2 {
+            text-align: center;
+            color: red;
+        }
+
+        a {
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;               /* Increased table width */
+            border-collapse: collapse;
+            background: #ffffff;
+            font-size: 15px;           /* Bigger text */
+        }
+
+        th, td {
+            padding: 14px;             /* Bigger cells */
+            border: 1px solid #000;
+            text-align: center;
+        }
+
+        th {
+            background: #f8d7da;
+            font-size: 16px;
+        }
+
+        .expiry {
+            color: red;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            color: white;
+            background: red;
+            padding: 6px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background: darkred;
+        }
+
+        .no-data {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>❌ Expired Medicines</h2>
+
+<a href="/admin">⬅ Back to Admin Dashboard</a>
+
+<div class="table-container">
+<table>
+    <tr>
+        <th>Batch No</th>
+        <th>Medicine</th>
+        <th>Company</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Expiry Date</th>
+        <th>Action</th>
+    </tr>
+
+    {% for m in medicines %}
+    <tr>
+        <td>{{ m.batch_no }}</td>
+        <td>{{ m.name }}</td>
+        <td>{{ m.manufacturer }}</td>
+        <td>{{ m.quantity }}</td>
+        <td>₹ {{ m.price }}</td>
+        <td class="expiry">{{ m.expiry_date }}</td>
+        <td>
+            <a href="/delete_medicine/{{ m.batch_no }}"
+               onclick="return confirm('Delete this expired medicine?')"
+               class="delete-btn">
+               🗑 Delete
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% if medicines|length == 0 %}
+<p class="no-data">✅ No expired medicines found</p>
+{% endif %}
+
+</body>
+</html>

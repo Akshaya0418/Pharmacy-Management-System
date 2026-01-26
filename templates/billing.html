@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Bill</title>
+</head>
+<body>
+
+<h1>Final Bill</h1>
+
+<p><b>Customer:</b> {{ cname }}</p>
+<p><b>Phone:</b> {{ phone }}</p>
+
+<hr>
+
+{% for c in cart %}
+<p>
+<b>{{ c.name }}</b> |
+Qty {{ c.qty }} |
+₹ {{ c.total }}
+</p>
+
+{% if c.doctor_name %}
+<p style="margin-left:20px;">
+    👨‍⚕ Doctor: {{ c.doctor_name }} <br>
+    📄 Prescription ID: {{ c.prescription_id }}
+</p>
+{% endif %}
+
+{% endfor %}
+
+<hr>
+<h3>Total Amount: ₹ {{ grand_total }}</h3>
+
+<br>
+<button onclick="window.print()">🖨 Print</button>
+<br><br>
+
+<a href="/pharmacist">➕ New Sale</a> |
+<a href="/">⬅ Home</a>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer History</title>
+</head>
+<body>
+
+<h2>👤 Customer Purchase History</h2>
+
+<table border="1" cellpadding="8">
+<tr>
+    <th>Customer</th>
+    <th>Phone</th>
+    <th>Medicine</th>
+    <th>Qty</th>
+    <th>Total</th>
+    <th>Date</th>
+</tr>
+
+{% for s in sales %}
+<tr>
+<td>{{ s.customer_name }}</td>
+<td>{{ s.customer_phone }}</td>
+<td>{{ s.medicine_name }}</td>
+<td>{{ s.quantity }}</td>
+<td>₹ {{ s.total }}</td>
+<td>{{ s.sale_date }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/">⬅ Home</a>
+
+</body>
+</html>

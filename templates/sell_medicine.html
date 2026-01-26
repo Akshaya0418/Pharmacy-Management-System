@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmacist Panel</title>
+</head>
+<body>
+
+<h2>Pharmacist Panel</h2>
+
+<!-- SEARCH MEDICINE -->
+<form method="post" action="/pharmacist">
+    Batch Number:
+    <input type="text" name="batch" required>
+    <button type="submit">Get Medicine</button>
+</form>
+
+<hr>
+
+{% if med %}
+<h3>Medicine Details</h3>
+
+<p><b>Name:</b> {{ med.name }}</p>
+<p><b>Manufacturer:</b> {{ med.manufacturer }}</p>
+
+<p>
+<b>Expiry Date:</b>
+<span style="color:{{ expiry_color | default('black') }}; font-weight:bold;">
+    {{ med.expiry_date }} ({{ expiry_status }})
+</span>
+</p>
+
+<p><b>Available Quantity:</b> {{ med.quantity }}</p>
+<p><b>Price:</b> ₹ {{ med.price }}</p>
+
+{% if low_stock %}
+<p style="color:red; font-weight:bold;">
+    ⚠ LOW STOCK ALERT (Only {{ med.quantity }} left)
+</p>
+{% endif %}
+
+<!-- ADD TO CART -->
+<form method="post" action="/add_to_cart">
+    <input type="hidden" name="batch" value="{{ med.batch_no }}">
+
+    Quantity:
+    <input type="number" name="qty" min="1" max="{{ med.quantity }}" required>
+    <br><br>
+
+    {% if requires_prescription %}
+    <p style="color:red; font-weight:bold;">
+        ⚠ Doctor Prescription Required
+    </p>
+
+    Doctor Name:
+    <input type="text" name="doctor_name" required><br><br>
+
+    Prescription ID:
+    <input type="text" name="prescription_id" required><br><br>
+    {% endif %}
+
+    <button type="submit">➕ Add to Cart</button>
+</form>
+{% endif %}
+
+<hr>
+
+<h3>🛒 Cart</h3>
+
+{% if cart %}
+<table border="1" cellpadding="8">
+<tr>
+    <th>Medicine</th>
+    <th>Qty</th>
+    <th>Price</th>
+    <th>Total</th>
+    <th>Action</th>
+</tr>
+
+{% set ns = namespace(total=0) %}
+{% for item in cart %}
+{% set ns.total = ns.total + item.total %}
+<tr>
+    <td>{{ item.name }}</td>
+    <td>{{ item.qty }}</td>
+    <td>₹ {{ item.price }}</td>
+    <td>₹ {{ item.total }}</td>
+    <td>
+        <a href="/remove_from_cart/{{ loop.index0 }}"
+           style="color:red; text-decoration:none;"
+           onclick="return confirm('Remove this medicine?')">
+           ❌ Remove
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+<h3>💰 Total Amount: ₹ {{ ns.total }}</h3>
+
+<br>
+<a href="/customer_details"
+   style="padding:8px 12px; background:#28a745; color:white; text-decoration:none;">
+   ➡ Proceed to Customer & Billing
+</a>
+
+{% else %}
+<p><b>No medicines in cart</b></p>
+{% endif %}
+
+</body>
+</html>

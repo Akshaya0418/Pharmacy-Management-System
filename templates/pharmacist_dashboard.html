@@ -1,0 +1,52 @@
+<h2>💊 Pharmacist Billing</h2>
+
+Customer Name <input id="cname"><br>
+Phone <input id="cphone"><br><br>
+
+Batch No <input id="batch" onkeyup="loadMed()">
+<div id="info"></div>
+
+Qty <input id="qty" type="number" min="1"><br><br>
+<button onclick="addItem()">➕ Add</button>
+
+<h3>Bill</h3>
+<table border="1" id="bill">
+<tr><th>Name</th><th>Qty</th><th>Subtotal</th></tr>
+</table>
+
+cart = session.get("cart", [])
+total = sum(item["total"] for item in cart)
+<h3>Total: ₹{{ total }}</h3>
+
+<form method="POST" action="/final_bill">
+<input type="hidden" name="customer_name" id="fcname">
+<input type="hidden" name="customer_phone" id="fphone">
+<button onclick="finalize()">Generate Bill</button>
+</form>
+
+<script>
+async function loadMed(){
+ let r=await fetch("/fetch_medicine",{method:"POST",
+ headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({batch_no:batch.value})});
+ let d=await r.json();
+ info.innerHTML=`<b>${d.name}</b> ₹${d.price}
+ <p style="color:${d.color}">${d.status}</p>`;
+}
+
+async function addItem(){
+ let r=await fetch("/add_to_cart",{method:"POST",
+ headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({batch_no:batch.value,quantity:qty.value})});
+ let d=await r.json();
+ bill.innerHTML="<tr><th>Name</th><th>Qty</th><th>Subtotal</th></tr>";
+ d.forEach(i=>{
+  bill.innerHTML+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>₹${i.subtotal}</td></tr>`;
+ });
+}
+
+function finalize(){
+ fcname.value=cname.value;
+ fphone.value=cphone.value;
+}
+</script>

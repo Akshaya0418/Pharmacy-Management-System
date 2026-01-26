@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Details</title>
+</head>
+<body>
+
+<h2>👤 Customer Details</h2>
+
+<table border="1" cellpadding="8">
+<tr>
+    <th>Medicine</th>
+    <th>Qty</th>
+    <th>Total</th>
+</tr>
+{% for item in cart %}
+<tr>
+    <td>{{ item.name }}</td>
+    <td>{{ item.qty }}</td>
+    <td>₹ {{ item.total }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h3>Grand Total: ₹ {{ total }}</h3>
+
+<hr>
+
+<form method="POST" action="/billing">
+    <label>Customer Name:</label><br>
+    <input type="text" name="cname" required><br><br>
+
+    <label>Phone:</label><br>
+    <input type="text" name="phone" required><br><br>
+
+    <button type="submit">🧾 Generate Bill</button>
+</form>
+
+<br>
+<a href="/pharmacist">⬅ Back</a>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monthly Sales & Profit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f4f6f8;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;               /* Increased width */
+            border-collapse: collapse;
+            background: #ffffff;
+            font-size: 16px;           /* Bigger text */
+        }
+
+        th, td {
+            padding: 14px;             /* Bigger cells */
+            border: 1px solid #000;
+            text-align: center;
+        }
+
+        th {
+            background: #343a40;
+            color: white;
+            font-size: 17px;
+        }
+
+        .profit {
+            color: green;
+            font-weight: bold;
+        }
+
+        a {
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>📊 Monthly Sales & Profit</h2>
+
+<div class="table-container">
+<table>
+    <tr>
+        <th>Month</th>
+        <th>Total Sales (₹)</th>
+        <th>Total Profit (₹)</th>
+    </tr>
+
+    {% for r in report %}
+    <tr>
+        <td>{{ r.month }}</td>
+        <td>₹ {{ r.total_sales }}</td>
+        <td class="profit">₹ {{ r.total_profit }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<a href="/admin">⬅ Back to Admin Dashboard</a>
+
+</body>
+</html>

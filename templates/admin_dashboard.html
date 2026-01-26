@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .expired { background:#ffcccc; }
+        .near { background:#fff3cd; }
+        .safe { background:#ccffcc; }
+        .low-stock { color:red; font-weight:bold; }
+        table { border-collapse: collapse; width:100%; }
+        th, td { padding:8px; text-align:center; }
+    </style>
+</head>
+
+<body>
+
+<h2>📦 Admin Dashboard</h2>
+
+<a href="/add_medicine">➕ Add Medicine</a>    |
+<a href="/sales_report">📊 Sales Report</a>    |
+<a href="/low_stock">⚠ Low Stock</a>           |
+<a href="/near_expiry">⏳ Near Expiry</a>       |
+<a href="/expired_medicines">❌ Expired Medicines</a>    |
+<a href="/monthly_report">📊 Monthly Sales & Profit</a> |
+<a href="/">⬅ Logout</a>
+
+<br><br>
+
+<table border="1">
+<tr>
+    <th>Batch No</th>
+    <th>Medicine</th>
+    <th>Company</th>
+    <th>Qty</th>
+    <th>Price</th>
+    <th>Expiry</th>
+    <th>Status</th>
+    <th>Stock</th>
+</tr>
+
+{% for m in medicines %}
+<tr class="
+    {% if m.expiry_date < today %}
+        expired
+    {% elif m.expiry_date <= near_expiry %}
+        near
+    {% else %}
+        safe
+    {% endif %}
+">
+    <td>{{ m.batch_no }}</td>
+    <td>{{ m.name }}</td>
+    <td>{{ m.manufacturer }}</td>
+    <td>{{ m.quantity }}</td>
+    <td>₹ {{ m.price }}</td>
+    <td>{{ m.expiry_date }}</td>
+
+    <!-- Expiry status -->
+    <td>
+        {% if m.expiry_date < today %}
+            ❌ Expired
+        {% elif m.expiry_date <= near_expiry %}
+            ⚠ Near Expiry
+        {% else %}
+            ✅ Good
+        {% endif %}
+    </td>
+
+    <!-- Stock status -->
+    <td>
+        {% if m.quantity <= 10 %}
+            <span class="low-stock">LOW</span>
+        {% else %}
+            OK
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+<hr>
+</script>
+
+</body>
+</html>

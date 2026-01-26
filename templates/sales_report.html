@@ -1,0 +1,28 @@
+<h2 style="text-align:center;">Sales Report</h2>
+
+<div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+            <tr style="background-color:#f2f2f2;">
+                <th style="padding:10px; border:1px solid #000;">Customer</th>
+                <th style="padding:10px; border:1px solid #000;">Medicine</th>
+                <th style="padding:10px; border:1px solid #000;">Qty</th>
+                <th style="padding:10px; border:1px solid #000;">Total</th>
+                <th style="padding:10px; border:1px solid #000;">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sales %}
+            <tr style="text-align:center;">
+                <td style="padding:8px; border:1px solid #000;">{{ s.customer_name }}</td>
+                <td style="padding:8px; border:1px solid #000;">{{ s.medicine_name }}</td>
+                <td style="padding:8px; border:1px solid #000;">{{ s.quantity }}</td>
+                <td style="padding:8px; border:1px solid #000;">₹{{ s.total }}</td>
+                <td style="padding:8px; border:1px solid #000;">{{ s.sale_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+

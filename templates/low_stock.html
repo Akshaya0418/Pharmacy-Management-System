@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Low Stock Medicines</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f4f6f8;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        a {
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;                 /* Increased table size */
+            border-collapse: collapse;
+            background: white;
+            font-size: 15px;             /* Bigger text */
+        }
+
+        th, td {
+            padding: 14px;               /* Bigger cells */
+            border: 1px solid #000;
+            text-align: center;
+        }
+
+        th {
+            background: #343a40;
+            color: white;
+            font-size: 16px;
+        }
+
+        .qty-low {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-out {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-low {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>⚠ Low Stock Medicines</h2>
+
+<a href="/admin">⬅ Back to Admin Dashboard</a>
+
+<div class="table-container">
+<table>
+    <tr>
+        <th>Batch No</th>
+        <th>Medicine Name</th>
+        <th>Company</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Expiry Date</th>
+        <th>Status</th>
+    </tr>
+
+    {% for m in medicines %}
+    <tr>
+        <td>{{ m.batch_no }}</td>
+        <td>{{ m.name }}</td>
+        <td>{{ m.manufacturer }}</td>
+        <td class="qty-low">{{ m.quantity }}</td>
+        <td>₹ {{ m.price }}</td>
+        <td>{{ m.expiry_date }}</td>
+        <td>
+            {% if m.quantity == 0 %}
+                <span class="status-out">OUT OF STOCK</span>
+            {% else %}
+                <span class="status-low">LOW STOCK</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% if medicines|length == 0 %}
+<p class="no-data">✅ No low stock medicines</p>
+{% endif %}
+
+</body>
+</html>

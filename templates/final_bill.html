@@ -7,10 +7,13 @@
 
 <h2>🧾 Final Bill</h2>
 
-<p><b>Customer:</b> {{ customer.name }}</p>
+<h3>👤 Customer Details</h3>
+<p><b>Name:</b> {{ customer.name }}</p>
 <p><b>Phone:</b> {{ customer.phone }}</p>
 
 <hr>
+
+<h3>💊 Medicines</h3>
 
 <table border="1" cellpadding="8">
 <tr>
@@ -33,16 +36,17 @@
 <hr>
 
 <h3>💰 Bill Summary</h3>
-
 <p><b>Total Amount :</b> ₹{{ total_amount }}</p>
-<p><b>Discount :</b> ₹{{ discount }}</p>
+<p><b>Discount (10%) :</b> ₹{{ discount }}</p>
+<p style="color:blue;"><b>GST ({{ gst_rate }}%) :</b> ₹{{ gst_amount }}</p>
+
+<hr>
 
 <h2><b>Final Amount :</b> ₹{{ final_amount }}</h2>
 
 <hr>
 
 <button onclick="window.print()">🖨 Print</button>
-
 <br><br>
 <a href="/pharmacist">➕ New Sale</a>
 

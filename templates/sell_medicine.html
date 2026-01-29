@@ -96,17 +96,24 @@
 
 <br>
 
-<a href="/billing"
-   style="padding:4px 12px; background:#28a745; color:white; text-decoration:none;">
-   ➡ Proceed to Customer & Billing
-</a>
+<!-- somewhere below the cart table -->
+<form action="/customer_details" method="get">
+    <button type="submit"
+            style="padding:10px 15px; background:#28a745; color:white;">
+        ➡ Proceed to Customer & Billing
+    </button>
+</form>
+
+<br>
+
+
 
 {% else %}
 <p><b>No medicines in cart</b></p>
 {% endif %}
 
 <hr>
-<a href="/logout">🚪 Logout</a>
+<a href="/">🚪 Logout</a>
 
 </body>
 </html>

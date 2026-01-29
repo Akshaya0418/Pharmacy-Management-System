@@ -306,14 +306,16 @@ def customer_details():
         return redirect("/pharmacist")
 
     if request.method == "POST":
+        # Save customer info to session
         session["customer"] = {
-            "name": request.form["name"],
-            "phone": request.form["phone"]
+            "name": request.form.get("name"),
+            "phone": request.form.get("phone")
         }
+        # Go to final bill page
         return redirect("/billing")
 
+    # Show the form
     return render_template("customer_details.html")
-
 
 
     
@@ -381,23 +383,28 @@ def register():
 # ---------------- BILLING ----------------
 @app.route("/billing")
 def billing():
-
     cart = session.get("cart", [])
     customer = session.get("customer")
 
-    # ❌ If customer missing, redirect back
+    # If somehow no customer info, send back
     if not customer:
         return redirect("/customer_details")
 
-    total_amount = 0
-    for item in cart:
-        total_amount += float(item["total"])
+    # Calculate total
+    total_amount = sum(float(item["total"]) for item in cart)
 
+    # Discount rule (10% if >= 1000)
     discount = 0
     if total_amount >= 1000:
         discount = round(total_amount * 0.10, 2)
 
-    final_amount = round(total_amount - discount, 2)
+    taxable_amount = total_amount - discount
+
+    # GST example: 5% after discount
+    gst_rate = 5
+    gst_amount = round(taxable_amount * gst_rate / 100, 2)
+
+    final_amount = round(taxable_amount + gst_amount, 2)
 
     return render_template(
         "final_bill.html",
@@ -405,8 +412,17 @@ def billing():
         customer=customer,
         total_amount=total_amount,
         discount=discount,
+        gst_amount=gst_amount,
+        gst_rate=gst_rate,
         final_amount=final_amount
     )
+
+
+
+# cgst = round(taxable_amount * 2.5 / 100, 2)
+# sgst = round(taxable_amount * 2.5 / 100, 2) 
+# gst_amount = cgst + sgst
+
 
 
 # ---------------- MONTHLY REPORT ----------------

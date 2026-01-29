@@ -4,19 +4,24 @@
     <title>Login</title>
 </head>
 <body>
-
-<h2>🏥 Pharmacy Management System</h2>
+<h2>🔐 Login</h2>
 
 <form method="POST">
-    <label>Select Role</label><br><br>
-    <select name="role" required>
-        <option value="">-- Select --</option>
-        <option value="admin">Admin</option>
-        <option value="pharmacist">Pharmacist</option>
-    </select><br><br>
+    Username <br>
+    <input type="text" name="username" required><br><br>
+
+    Password <br>
+    <input type="password" name="password" required><br><br>
 
     <button type="submit">Login</button>
 </form>
+
+<br>
+<a href="/register">New user? Register</a>
+
+{% if error %}
+<p style="color:red;"><b>{{ error }}</b></p>
+{% endif %}
 
 </body>
 </html>

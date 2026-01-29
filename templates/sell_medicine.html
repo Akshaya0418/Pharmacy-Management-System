@@ -14,7 +14,11 @@
     <button type="submit">Get Medicine</button>
 </form>
 
-<hr>
+
+<br>
+
+</form>
+
 
 {% if med %}
 <h3>Medicine Details</h3>
@@ -24,7 +28,7 @@
 
 <p>
 <b>Expiry Date:</b>
-<span style="color:{{ expiry_color | default('black') }}; font-weight:bold;">
+<span style="color:{{ expiry_color }}; font-weight:bold;">
     {{ med.expiry_date }} ({{ expiry_status }})
 </span>
 </p>
@@ -45,18 +49,6 @@
     Quantity:
     <input type="number" name="qty" min="1" max="{{ med.quantity }}" required>
     <br><br>
-
-    {% if requires_prescription %}
-    <p style="color:red; font-weight:bold;">
-        ⚠ Doctor Prescription Required
-    </p>
-
-    Doctor Name:
-    <input type="text" name="doctor_name" required><br><br>
-
-    Prescription ID:
-    <input type="text" name="prescription_id" required><br><br>
-    {% endif %}
 
     <button type="submit">➕ Add to Cart</button>
 </form>
@@ -95,17 +87,26 @@
 {% endfor %}
 </table>
 
-<h3>💰 Total Amount: ₹ {{ ns.total }}</h3>
+<hr>
+
+
+
+</div>
+
 
 <br>
-<a href="/customer_details"
-   style="padding:8px 12px; background:#28a745; color:white; text-decoration:none;">
+
+<a href="/billing"
+   style="padding:4px 12px; background:#28a745; color:white; text-decoration:none;">
    ➡ Proceed to Customer & Billing
 </a>
 
 {% else %}
 <p><b>No medicines in cart</b></p>
 {% endif %}
+
+<hr>
+<a href="/logout">🚪 Logout</a>
 
 </body>
 </html>

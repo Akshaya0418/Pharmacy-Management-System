@@ -23,9 +23,15 @@ def calculate_total(cart):
 def home():
     return render_template("home.html")
 
+
 # ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin")
 def admin():
+    if "role" not in session:
+        return redirect("/login")
+    if session["role"] != "admin":
+        return redirect("/login")
+    
     db = get_db()
     cur = db.cursor(dictionary=True)
     cur.execute("SELECT * FROM medicines")
@@ -96,12 +102,32 @@ def doctor_confirmation():
 # ---------------- PHARMACIST PANEL ----------------
 @app.route("/pharmacist", methods=["GET", "POST"])
 def pharmacist():
+    if "role" not in session:
+        return redirect("/login")
+    if session["role"] != "pharmacist":
+        return redirect("/login")
+
     med = None
     expiry_status = ""
     expiry_color = ""
     low_stock = False
 
     cart = session.get("cart", [])
+
+    total_amount = 0
+    discount = 0
+    final_amount = 0
+
+    for item in cart:
+        total_amount += item["price"] * item["qty"]
+
+# ✅ Discount rule
+    if total_amount >= 1000:
+       discount = round(total_amount * 0.10, 2)
+
+# ✅ FINAL AMOUNT (THIS LINE IS THE KEY)
+    final_amount = total_amount - discount
+
 
     if request.method == "POST":
         batch = request.form.get("batch")
@@ -131,13 +157,18 @@ def pharmacist():
                     low_stock = True
 
     return render_template(
-        "sell_medicine.html",
-        med=med,
-        cart=cart,
-        expiry_status=expiry_status,
-        expiry_color=expiry_color,
-        low_stock=low_stock
-    )
+    "sell_medicine.html",
+    cart=cart,
+    total_amount=total_amount,
+    discount=discount,
+    final_amount=final_amount,
+    med=med,
+    expiry_status=expiry_status,
+    expiry_color=expiry_color,
+    low_stock=low_stock
+)
+
+
 
 # ---------------- LOW STOCK ----------------
 @app.route("/low_stock")
@@ -269,96 +300,112 @@ def remove_from_cart(index):
     return redirect("/pharmacist")
 
 # ---------------- CUSTOMER DETAILS ----------------
-@app.route("/customer_details")
+@app.route("/customer_details", methods=["GET", "POST"])
 def customer_details():
-    cart = session.get("cart", [])
-    if not cart:
+    if "cart" not in session or not session["cart"]:
         return redirect("/pharmacist")
-    return render_template(
-        "customer_details.html",
-        cart=cart,
-        total=calculate_total(cart)
-    )
+
+    if request.method == "POST":
+        session["customer"] = {
+            "name": request.form["name"],
+            "phone": request.form["phone"]
+        }
+        return redirect("/billing")
+
+    return render_template("customer_details.html")
+
+
+
+    
+# ---------------- LOGIN ----------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        db = get_db()
+        cur = db.cursor(dictionary=True)
+        cur.execute(
+            "SELECT * FROM users WHERE username=%s AND password=%s",
+            (username, password)
+        )
+        user = cur.fetchone()
+        cur.close()
+        db.close()
+
+        if user:
+            session.clear()
+            session["user"] = user["username"]
+            session["role"] = user["role"]
+
+            if user["role"] == "admin":
+                return redirect("/admin")
+            elif user["role"] == "pharmacist":
+                return redirect("/pharmacist")
+        else:
+            error = "Invalid username or password"
+
+    return render_template("login.html", error=error)
+
+
+# ---------------- REGISTER ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        db = get_db()
+        cur = db.cursor()
+        try:
+            cur.execute(
+                "INSERT INTO users (username, password, role) VALUES (%s,%s,%s)",
+                (
+                    request.form["username"],
+                    request.form["password"],
+                    request.form["role"]
+                )
+            )
+            db.commit()
+        except:
+            db.rollback()
+        finally:
+            cur.close()
+            db.close()
+
+        return redirect("/login")
+
+    return render_template("register.html")
+
 
 # ---------------- BILLING ----------------
-@app.route("/billing", methods=["POST"])
+@app.route("/billing")
 def billing():
-    cname = request.form.get("cname")
-    phone = request.form.get("phone")
+
     cart = session.get("cart", [])
+    customer = session.get("customer")
 
-    if not cart:
-        return redirect("/pharmacist")
+    # ❌ If customer missing, redirect back
+    if not customer:
+        return redirect("/customer_details")
 
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-    grand_total = 0.0
-
+    total_amount = 0
     for item in cart:
-        # 🔹 Fetch medicine safely
-        cur.execute(
-            """
-            SELECT batch_no, name, quantity, price,
-                   IFNULL(cost_price, 0) AS cost_price
-            FROM medicines
-            WHERE batch_no = %s
-            """,
-            (item["batch"],)
-        )
-        med = cur.fetchone()
+        total_amount += float(item["total"])
 
-        # 🔹 Safety check
-        if not med:
-            continue
+    discount = 0
+    if total_amount >= 1000:
+        discount = round(total_amount * 0.10, 2)
 
-        # 🔹 Safe type conversion
-        cost_price = float(med.get("cost_price", 0))
-        selling_price = float(item["price"])
-        qty = int(item["qty"])
-
-        total = selling_price * qty
-        profit = (selling_price - cost_price) * qty
-        grand_total += total
-
-        # 🔹 Insert into sales
-        cur.execute(
-            """
-            INSERT INTO sales
-            (customer_name, customer_phone, medicine_name,
-             quantity, price, total, profit)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                cname,
-                phone,
-                med["name"],
-                qty,
-                selling_price,
-                total,
-                profit
-            )
-        )
-
-        # 🔹 Update stock
-        cur.execute(
-            """
-            UPDATE medicines
-            SET quantity = quantity - %s
-            WHERE batch_no = %s
-            """,
-            (qty, med["batch_no"])
-        )
-
-    db.commit()
-    db.close()
-    session.pop("cart", None)
+    final_amount = round(total_amount - discount, 2)
 
     return render_template(
-        "billing.html",
-        cname=cname,
-        phone=phone,
+        "final_bill.html",
         cart=cart,
-        grand_total=grand_total
+        customer=customer,
+        total_amount=total_amount,
+        discount=discount,
+        final_amount=final_amount
     )
 
 
@@ -387,11 +434,28 @@ def monthly_report():
 def sales_report():
     db = get_db()
     cur = db.cursor(dictionary=True)
-    cur.execute("SELECT * FROM sales ORDER BY sale_date DESC")
+
+    cur.execute("""
+        SELECT
+            customer_name,
+            customer_phone,
+            GROUP_CONCAT(medicine_name SEPARATOR ', ') AS medicines,
+            SUM(quantity) AS total_quantity,
+            SUM(total) AS grand_total,
+            MAX(sale_date) AS sale_date
+        FROM sales
+        GROUP BY customer_name, customer_phone, DATE(sale_date)
+        ORDER BY sale_date DESC
+    """)
+
     sales = cur.fetchall()
     db.close()
+
     return render_template("sales_report.html", sales=sales)
+
+
+
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
